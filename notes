@@ -1,0 +1,73 @@
+// Download website content to string
+string contents;
+using (var wc = new System.Net.WebClient())
+    contents = wc.DownloadString(url);
+    
+// Monitor UI changes
+#region Save/Load Data
+bool modifiedScreen = false;
+// Developed with DevExpress but the concept is there for regular winforms
+private void MonitorUI(Control.ControlCollection cs)
+{
+    foreach (Control c in cs)
+    {
+        // Recurse into child controls if presented with a groupcontrol.
+        if (c is GroupControl)
+        {
+            MonitorUI(((GroupControl)c).Controls);
+        }
+        else if (c is CheckEdit)
+        {
+            ((CheckEdit)c).CheckedChanged += new EventHandler(c_ControlChanged);
+        }
+        else
+        {
+            c.TextChanged += new EventHandler(c_ControlChanged);
+        }
+    }
+}
+private void c_ControlChanged(object sender, EventArgs e)
+{
+    modifiedScreen = true;
+}
+
+bool newData = false;
+private void SaveChanges()
+{
+    if (modifiedScreen)
+    {
+        // Would you like to save your changes?
+        DialogResult result = MessageBox.Show("Would you like to save the changes you've made?",
+                                              "Keep changes?",
+                                              MessageBoxButtons.YesNo,
+                                              MessageBoxIcon.Question);
+        if (result == DialogResult.Yes)
+            SaveData();
+    }
+}
+private void SaveData()
+{
+    if (newData)
+        // Insert data
+    else
+        // Update data
+
+    modifiedScreen = false;
+}
+private void LoadData()
+{
+    // Select data
+
+    if (results.Rows.Count < 1)
+    {
+        newData = true;
+        return;
+    }
+
+    newData = false;
+    
+    // Load data to screen
+    
+    modifiedScreen = false;
+}
+#endregion
