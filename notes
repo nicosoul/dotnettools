@@ -1,9 +1,13 @@
+//-----------------------------------
 // Download website content to string
+//-----------------------------------
 string contents;
 using (var wc = new System.Net.WebClient())
     contents = wc.DownloadString(url);
-    
+  
+//-------------------
 // Monitor UI changes
+//-------------------
 #region Save/Load Data
 bool modifiedScreen = false;
 // Developed with DevExpress but the concept is there for regular winforms
@@ -71,3 +75,76 @@ private void LoadData()
     modifiedScreen = false;
 }
 #endregion
+
+//--------------------------
+// Paging sql data into grid
+//--------------------------
+
+//-----------------------
+// Formatting date string
+//-----------------------
+public static String FormatDateString(String dateString, String outputFormat)
+{
+    // ignore empty date strings
+    if (dateString.Equals(String.Empty))
+        return "";
+
+    DateTime dt;
+
+    // Try to convert it normally. This should work in most cases.
+    try
+    {
+        dt = Convert.ToDateTime(dateString, CultureInfo.InvariantCulture);
+    }
+    catch (Exception e)
+    {
+        // If something goes wrong, try to parse it this way
+        dt = DateTime.ParseExact(dateString,
+                                 "yyyyMMdd",
+                                 CultureInfo.InvariantCulture);
+    }
+
+    // Lastly format it correctly
+    return dt.ToString(outputFormat);
+}
+
+//-----------------------
+// Split text into chunks
+//-----------------------
+public static String[] SplitIntoChunks(String textToSplit, int numChunks, int chunkSize)
+{
+    if (textToSplit.Length > numChunks * chunkSize)
+        MessageBox.Show("Utilities Warning: Code 1"+
+                        Environment.NewLine + "Text is longer than allotted chunks, excess will be removed.");
+
+    String[] t = new String[numChunks];
+    for(int a = 0; a < numChunks; ++a)
+        t[a] = "";
+
+    int i = 0;
+    int ctr = 0;
+    while (i < textToSplit.Length)
+    {
+        if ((i + 1) % (chunkSize + 1) == 0)
+            ++ctr;
+
+        t[ctr] += textToSplit[i];
+
+        ++i;
+    }
+
+    return t;
+}
+
+//----------------------------
+// Database connection library
+//----------------------------
+
+//------------------------
+// Number of rows in query
+//------------------------
+public static int NumRowsInQuery(String sql)
+{
+    String q = "select count(*) AS NumRows from (" + sql + ") as results";
+    return int.Parse(DBConLib.Select(q, 0).Rows[0]["NumRows"].ToString());
+}
